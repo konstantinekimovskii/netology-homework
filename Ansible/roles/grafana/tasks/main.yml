@@ -25,7 +25,7 @@
   delay: 1
 
 - name: change admin password for grafana gui
-  shell: "grafana-cli admin reset-admin-password Administrator"
+  shell: "grafana-cli admin reset-admin-password {{ grafana_admin_password }}"
   register: __command_admin
   changed_when: __command_admin.rc !=0
 
