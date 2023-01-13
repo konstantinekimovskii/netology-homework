@@ -1,7 +1,7 @@
 ---
 # tasks file for roles/filebeat
- - name: APT - Add elastic repo key
-   apt_key: url="http://elasticrepo.serveradmin.ru/elastic.asc"
+- name: APT - Add elastic repo key
+  apt_key: url="http://elasticrepo.serveradmin.ru/elastic.asc"
 
 - name: Add repo to source list
   template: src=filebeat.list.j2 dest=/etc/apt/sources.list.d/filebeat.list
