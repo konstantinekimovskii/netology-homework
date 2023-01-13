@@ -1,0 +1,52 @@
+- name: install nginx and nginx-exporter
+  apt: 
+    pkg:
+    - nginx
+    - prometheus-nginx-exporter
+    - prometheus-nginx-vts-exporter
+    update_cache: yes
+  become: True
+
+- name: delete default nginx start page
+  file: path=/var/www/html/index.nginx-debian.html state=absent
+
+- name: copy index page to nginx
+  template: src=index.j2 dest=/var/www/html/index.html
+
+- name: take read access for nginx access.log
+  file:
+    path: /var/log/nginx/access.log
+    mode: '0644'
+
+- name: Installing nginxlog-exporter
+  apt: deb="{{ nginxlog_link }}"
+
+- name: Delete default nginxlog-exporter config
+  file:
+    path: /etc/prometheus-nginxlog-exporter.hcl
+    state: absent
+
+- name: Make config for nginxlog-exporter
+  template: src=prometheus-nginxlog-exporter.hcl.j2 dest=/etc/prometheus-nginxlog-exporter.hcl
+
+- name: Restart prometheus-nginxlog-exporter.service
+  systemd: name=prometheus-nginxlog-exporter.service state=restarted
+  become: true
+
+- name: wait for nginxlog-exporter up
+  uri:
+    url: "http://127.0.0.1:4040/metrics"
+    status_code: 200
+  register: __result
+  until: __result.status == 200
+  retries: 12
+  delay: 20
+
+- name: wait for nginx up
+  uri:
+    url: "http://127.0.0.1:80"
+    status_code: 200
+  register: __result
+  until: __result.status == 200
+  retries: 12
+  delay: 10

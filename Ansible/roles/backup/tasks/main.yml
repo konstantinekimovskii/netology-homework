@@ -1,0 +1,28 @@
+---
+# tasks file for roles/backup
+- name: install yc
+  shell:
+    cmd: curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+
+- name: configure yc
+  shell:
+    cmd: |
+      source "/home/{{ ssh_ansible_user }}/.bashrc"
+      yc config profile create netology-diplom
+      exit 0
+
+- name: copy backup script
+  template: src=backup-netology.sh.j2 dest="/home/{{ ssh_ansible_user }}/backup-netology.sh"
+
+- name: make script exec
+  file:
+    path: "/home/{{ ssh_ansible_user }}/backup-netology.sh"
+    mode: '0750'
+  become: true
+
+- name: make cron task
+  cron:
+    name: "Daily snapshot"
+    job: "/home/{{ ssh_ansible_user }}/backup-netology.sh"
+    minute: "0"
+    hour: "0"

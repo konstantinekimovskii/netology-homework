@@ -1,0 +1,40 @@
+---
+# tasks file for roles/filebeat
+ - name: APT - Add elastic repo key
+   apt_key: url="http://elasticrepo.serveradmin.ru/elastic.asc"
+
+- name: Add repo to source list
+  template: src=filebeat.list.j2 dest=/etc/apt/sources.list.d/filebeat.list
+  become: true
+
+- name: Install filebeat from APT repository
+  apt: name=filebeat update_cache=yes
+  become: true
+
+- name: Copy config
+  template: src=filebeatConf.j2 dest=/etc/filebeat/filebeat.yml
+
+- name: Force systemd to reread configs
+  systemd: daemon_reload=yes
+  become: true
+
+- name: Enable filebeat.service
+  systemd:
+    name: filebeat.service
+    enabled: yes
+  become: true
+
+- name: Start filebeat.service
+  systemd: name=filebeat.service state=restarted
+  become: true
+
+- name: Configure filebeat modules
+  shell: filebeat modules enable system nginx
+
+- name: Force systemd to reread configs
+  systemd: daemon_reload=yes
+  become: true
+
+- name: Start filebeat.service
+  systemd: name=filebeat.service state=restarted
+  become: true

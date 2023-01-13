@@ -1,0 +1,91 @@
+---
+# tasks file for roles/grafana
+# - name: install gpg
+#   apt:
+#     pkg:
+#     - gnupg
+#     - software-properties-common
+#     update_cache: yes
+
+# - name: add gpg hey
+#   apt_key:
+#     url: "https://packages.grafana.com/gpg.key"
+#     validate_certs: no
+
+# - name: Add repo to source list
+#   template: src=grafana.list.j2 dest=/etc/apt/sources.list.d/grafana.list
+#   become: true
+
+
+- name: install some apt
+  apt:
+    name: libfontconfig1
+    state: latest
+    update_cache: yes
+
+- name: install grafana deb
+  apt:
+    deb: https://dl.grafana.com/oss/release/grafana_9.3.2_amd64.deb
+  become: yes
+
+- name: start service grafana-server
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+- name: wait for service up
+  uri:
+    url: "http://127.0.0.1:3000"
+    status_code: 200
+  register: __result
+  until: __result.status == 200
+  retries: 120
+  delay: 1
+
+- name: change admin password for grafana gui
+  shell: "grafana-cli admin reset-admin-password {{ grafana_admin_password }}"
+  register: __command_admin
+  changed_when: __command_admin.rc !=0
+
+- name: add data-source for grafana
+  uri:
+    url: http://grafana:3000/api/datasources
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+    body: "{{ lookup('file','roles/grafana/templates/data-source.j2') }}"
+    user: admin
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: yes
+    return_content: yes
+  delegate_to: localhost
+
+- name: add main dashboard in grafana
+  uri:
+    url: http://grafana:3000/api/dashboards/db
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+    body: "{{ lookup('file','roles/grafana/templates/dashboard-main.j2') }}"
+    user: admin
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: yes
+    return_content: yes
+  delegate_to: localhost
+
+- name: add nginx dashboard in grafana
+  uri:
+    url: http://grafana:3000/api/dashboards/db
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+    body: "{{ lookup('file','roles/grafana/templates/dashboard-nginx.j2') }}"
+    user: admin
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: yes
+    return_content: yes
+  delegate_to: localhost

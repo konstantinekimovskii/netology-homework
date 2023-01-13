@@ -1,0 +1,29 @@
+---
+# tasks file for roles/elastic
+- name: APT - Add elastic repo key
+  apt_key: url="http://elasticrepo.serveradmin.ru/elastic.asc" 
+
+- name: Add repo to source list
+  template: src=elasticsearch.list.j2 dest=/etc/apt/sources.list.d/elasticsearch.list
+  become: true
+
+- name: Install elasticsearch
+  apt: name=elasticsearch update_cache=yes
+  become: true
+
+- name: Copy config
+  template: src=elasticsearchConf.j2 dest=/etc/elasticsearch/elasticsearch.yml
+
+- name: Force systemd to reread configs
+  systemd: daemon_reload=yes
+  become: true
+
+- name: Enable elasticsearch.service
+  systemd:
+    name: elasticsearch.service
+    enabled: yes
+  become: true
+
+- name: Start elasticsearch.service
+  systemd: name=elasticsearch.service state=restarted
+  become: true

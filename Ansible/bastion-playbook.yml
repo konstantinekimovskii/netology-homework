@@ -1,0 +1,47 @@
+- name: install webservers, exporters and filebeat
+  hosts: webservers
+  become: yes
+  tags: 
+  - webservers
+  - main
+  roles:
+  - webserver
+  - node-exporter
+  - filebeat
+
+- name: install prometheus
+  hosts: prometheus
+  become: yes
+  tags: 
+  - prometheus
+  - main
+  roles:
+  - prometheus
+
+- name: install grafana
+  hosts: grafana
+  become: yes
+  tags: 
+  - grafana
+  - main
+  roles:
+  - grafana
+
+- name: install elasticsearch and logstash
+  hosts: elastic
+  become: yes
+  tags: 
+  - elastic
+  - main
+  roles:
+  - elastic
+  - logstash
+
+- name: install kibana
+  hosts: kibana
+  become: yes
+  tags: 
+  - kibana
+  - main
+  roles:
+  - kibana
