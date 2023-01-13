@@ -4,14 +4,17 @@
     - nginx
     - prometheus-nginx-exporter
     - prometheus-nginx-vts-exporter
-    update_cache: yes
+#    update_cache: yes
   become: True
 
 - name: delete default nginx start page
   file: path=/var/www/html/index.nginx-debian.html state=absent
 
-- name: copy index page to nginx
-  template: src=index.j2 dest=/var/www/html/index.html
+- name: Copy website files to the server's document root
+    copy:
+      src: roles/webserver/templates/html_demo_site-main
+      dest: /var/www/html
+      mode: preserve
 
 - name: take read access for nginx access.log
   file:

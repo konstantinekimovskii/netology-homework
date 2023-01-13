@@ -1,27 +1,8 @@
 ---
-# tasks file for roles/grafana
-# - name: install gpg
-#   apt:
-#     pkg:
-#     - gnupg
-#     - software-properties-common
-#     update_cache: yes
-
-# - name: add gpg hey
-#   apt_key:
-#     url: "https://packages.grafana.com/gpg.key"
-#     validate_certs: no
-
-# - name: Add repo to source list
-#   template: src=grafana.list.j2 dest=/etc/apt/sources.list.d/grafana.list
-#   become: true
-
-
 - name: install some apt
   apt:
     name: libfontconfig1
     state: latest
-    update_cache: yes
 
 - name: install grafana deb
   apt:
@@ -44,7 +25,7 @@
   delay: 1
 
 - name: change admin password for grafana gui
-  shell: "grafana-cli admin reset-admin-password {{ grafana_admin_password }}"
+  shell: "grafana-cli admin reset-admin-password Administrator"
   register: __command_admin
   changed_when: __command_admin.rc !=0
 
