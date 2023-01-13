@@ -1,3 +1,3 @@
 ---
 # defaults file for roles/grafana
-grafana_admin_password: Administrator
+grafana_admin_password: admini
