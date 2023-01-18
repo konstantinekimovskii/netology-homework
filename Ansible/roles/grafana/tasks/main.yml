@@ -56,17 +56,3 @@
     force_basic_auth: yes
     return_content: yes
   delegate_to: localhost
-
-- name: add nginx dashboard in grafana
-  uri:
-    url: http://grafana:3000/api/dashboards/db
-    method: POST
-    body_format: json
-    headers:
-      Content-Type: application/json
-    body: "{{ lookup('file','roles/grafana/templates/dashboard-nginx.j2') }}"
-    user: admin
-    password: "{{ grafana_admin_password }}"
-    force_basic_auth: yes
-    return_content: yes
-  delegate_to: localhost

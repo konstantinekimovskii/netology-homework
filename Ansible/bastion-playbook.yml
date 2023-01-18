@@ -35,7 +35,6 @@
   - main
   roles:
   - elastic
-  - logstash
 
 - name: install kibana
   hosts: kibana
