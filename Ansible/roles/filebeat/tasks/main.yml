@@ -27,14 +27,3 @@
 - name: Start filebeat.service
   systemd: name=filebeat.service state=restarted
   become: true
-
-- name: Configure filebeat modules
-  shell: filebeat modules enable system nginx
-
-- name: Force systemd to reread configs
-  systemd: daemon_reload=yes
-  become: true
-
-- name: Start filebeat.service
-  systemd: name=filebeat.service state=restarted
-  become: true
