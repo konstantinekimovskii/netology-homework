@@ -27,3 +27,23 @@
 - name: Start kibana.service
   systemd: name=kibana.service state=restarted
   become: true
+
+- name: mkdir for certs
+  ansible.builtin.file:
+    path: /etc/kibana/certs/
+    state: directory
+    mode: '0745'
+
+- name: Touch a file certs
+  ansible.builtin.file:
+    path: /etc/kibana/certs/http_ca.crt
+    state: touch
+    mode: '0660'
+
+- name: Recursively change ownership of a directory
+  ansible.builtin.file:
+    path: /etc/kibana/certs
+    state: directory
+    recurse: yes
+    owner: root
+    group: kibana
