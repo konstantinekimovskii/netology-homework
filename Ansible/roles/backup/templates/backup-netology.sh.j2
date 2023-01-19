@@ -9,14 +9,14 @@ yc config set token {{ token }}
 yc compute instance list | while read line ; do
   vm_id=$(echo $line | awk '{print $2}')
 
-  #Фильтруем пустые строки и разметку
+  #Фильтруем пустые строки и разметку, vm_name удаляем разделитель [-]
 {% raw %}
   if [[ ${#vm_id} -lt 10 ]]; then
 {% endraw %}
     continue
   fi
 
-  vm_name=$(echo $line | awk '{print $4}')
+  vm_name=$(echo $line | tr -d '-' | awk '{print $4}')
   disk_id=$(yc compute disk list | grep $vm_id | awk '{print $2}')
 
   yc compute snapshot create "backup-${vm_name}-snap-$(date +%Y-%m-%d-%H-%M)" --disk-id $disk_id
