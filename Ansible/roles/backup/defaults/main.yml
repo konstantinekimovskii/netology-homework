@@ -1,6 +1,6 @@
 ---
 # defaults file for roles/backup
-cloud_id: b1ga4hti71e0fa1dhmd6
+cloud_id: ####
 folder_name: only-for-test
-token: AQAAAAAjPbcgAATuwUjHsswia0qZrRi2GRMgfrk
+token: #####
 path_to_yc: "/home/{{ ssh_ansible_user }}/yandex-cloud/bin"
