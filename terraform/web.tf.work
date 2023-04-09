@@ -1,0 +1,65 @@
+variable "webserver" {
+  type = map(object({
+    name = string
+    hostname = string
+    zone = string
+    label = string
+    subnet = string
+  }))
+  default = {
+    "one" = {
+      name = "web-server1",
+      hostname = "web-server1",
+      zone = "ru-central1-a",
+      label = "web-server1",
+      subnet = "${yandex_vpc_subnet.subnet-a.id}"
+    },
+    "two" = {
+      name = "web-server2",
+      hostname = "web-server2",   
+      zone = "ru-central1-b",
+      label = "web-server2",
+      subnet = "${yandex_vpc_subnet.subnet-b.id}"
+    }
+  }
+}
+
+resource "yandex_compute_instance" "web-server1" {
+  for_each = var.webservers
+
+  name        = each.value.name
+  hostname    = each.value.hostname
+  platform_id = "standard-v1"
+  zone        = each.value.zone
+
+  labels = {
+    group = "webservers"
+    vds   = each.value.label
+  }
+
+  resources {
+    cores  = 2
+    memory = 1
+    core_fraction = 20
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = var.image_id
+    }
+  }
+
+  network_interface {
+    subnet_id = each.value.subnet
+    nat_ip_address = true
+    security_group_ids = [ yandex_vpc_security_group.sec-group.id ]
+  }
+
+  metadata = {
+    ssh-keys  = "${var.username}:${file(var.public_key_path)}"
+  }
+
+  lifecycle {
+    prevent_destroy = "false"
+  }
+}
